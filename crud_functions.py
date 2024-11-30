@@ -21,8 +21,38 @@ cursor = connection.cursor()
 #
 # cursor.executemany('INSERT INTO Products (title, description, price) VALUES (?, ?, ?)', products_data)
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS Users(
+id INTEGER PRIMARY KEY,
+username TEXT NOT NULL,
+email TEXT NOT NULL,
+age INTEGER NOT NULL,
+balance INTEGER NOT NULL
+)
+''')
+
+
+def add_user(username, email, age):
+
+    connection = sqlite3.connect("initiate_db.db")
+    cursor = connection.cursor()
+
+    cursor.execute('INSERT INTO Users (username, email, age, balance) VALUES (?, ?, ?, ?)',
+                       (username, email, age, 1000))
+    connection.commit()
+
+
+def is_included(username):
+    connection = sqlite3.connect("initiate_db.db")
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM Users WHERE username = ?", (username,))
+    check_user = cursor.fetchone()[0]
+    return check_user > 0
+
+
 def get_all_products():
-    connection = sqlite3.connect("initiate_db.db")  # Создаем соединение внутри функции
+    connection = sqlite3.connect("initiate_db.db")
     cursor = connection.cursor()
 
     cursor.execute("SELECT * FROM Products")
@@ -31,6 +61,7 @@ def get_all_products():
     connection.close()
 
     return [{'title': title, 'description': description, 'price': price} for id, title, description, price in products]
+
 
 connection.commit()
 connection.close()
